@@ -96,6 +96,7 @@ function saveChanges() {
 
 getUsers().then(data => {
     users = JSON.parse(data);
+    console.log(users);
     app.listen(80);
     console.log('API app started!');
 }).catch(_ => {
