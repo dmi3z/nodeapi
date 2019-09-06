@@ -96,7 +96,7 @@ function saveChanges() {
 
 getUsers().then(data => {
     users = JSON.parse(data);
-    app.listen('3012');
+    app.listen(80);
     console.log('API app started!');
 }).catch(_ => {
     console.log('No Database');
