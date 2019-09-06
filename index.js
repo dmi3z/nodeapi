@@ -94,10 +94,12 @@ function saveChanges() {
     });
 }
 
+const port = process.env.PORT || 3000;
+
 getUsers().then(data => {
     users = JSON.parse(data);
     console.log(users);
-    app.listen(80);
+    app.listen(port);
     console.log('API app started!');
 }).catch(_ => {
     console.log('No Database');
