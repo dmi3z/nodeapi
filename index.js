@@ -16,16 +16,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 var users = [];
 
-app.get('/users', (req, res) => {
-    console.log('GET is work');
-    res.send(users);
-});
-
 app.get('/user/:id', (req, res) => {
     const id = req.params.id;
     getUser(id).then(data => {
         res.send(data);
-        res.sendStatus(200);
     }).catch(_ => {
         res.sendStatus(500);
     });
@@ -33,6 +27,15 @@ app.get('/user/:id', (req, res) => {
 
 app.post('/users', (req, res) => {
     addUser(req.body.name).then(_ => res.sendStatus(200)).catch(_ => sendStatus(500));
+});
+
+app.post('/auth', (req, res) => {
+    const user = users.find(u => u.email === req.body.email);
+    if (user && req.body.password === user.password) {
+        res.send(user.id.toString());
+    } else {
+        res.sendStatus(500);
+    }
 });
 
 app.delete('/user', (req, res) => {
@@ -102,13 +105,14 @@ function saveChanges() {
     });
 }
 
+//heroku
+
 const port = process.env.PORT || 3000;
 
 getUsers().then(data => {
     users = JSON.parse(data);
-    console.log(users);
     app.listen(port);
-    console.log('API app started!');
+    console.log('API app started! Port: ', port);
 }).catch(_ => {
     console.log('No Database');
 });
