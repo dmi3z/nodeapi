@@ -56,7 +56,7 @@ app.get('/tasks', (req, res) => {
 
 // -------- Добавление таска -------------
 app.post('/tasks', (req, res) => {
-    addTask(req.body.id, req.body.task).then(_ => {
+    addTask(req.query.token, req.body.task).then(_ => {
         res.sendStatus(200);
     }).catch(_ => res.sendStatus(500));
 });
