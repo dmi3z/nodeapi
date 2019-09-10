@@ -16,19 +16,21 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 var users = [];
 
-app.get('/user/:id', (req, res) => {
+/* app.get('/user/:id', (req, res) => {
     const id = req.params.id;
     getUser(id).then(data => {
         res.send(data);
     }).catch(_ => {
         res.sendStatus(500);
     });
-});
+}); */
 
-app.post('/users', (req, res) => {
+/* app.post('/users', (req, res) => {
     addUser(req.body.name).then(_ => res.sendStatus(200)).catch(_ => sendStatus(500));
-});
+}); */
 
+
+// ------------- Авторизация----------------
 app.post('/auth', (req, res) => {
     const user = users.find(u => u.email === req.body.email);
     if (user && req.body.password === user.password) {
@@ -38,22 +40,32 @@ app.post('/auth', (req, res) => {
     }
 });
 
-app.delete('/user', (req, res) => {
-    deleteUser(req.body.id).then(_ => res.sendStatus(200)).catch(_ => sendStatus(500));
+// ----------- Проверка связи и инвайтов ------------
+app.get('/connection/:id', (req, res) => {
+    connectionControl(req.params.id).then(response => {
+        res.send(response);
+    }).catch(_ => res.sendStatus(500));
 });
 
-function getUsers() {
-    return new Promise((resolve, reject) => {
-        fs.readFile('users.json', 'utf-8', (err, data) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(data);
-        });
-    });
-}
+// ---------- Получение списка индивидуальных тасков ------
+app.get('/tasks', (req, res) => {
+    loadTasks(req.query.token).then(result => {
+        res.send(result);
+    }).catch(_ => res.sendStatus(500));
+});
 
-function getUser(id) {
+// -------- Добавление таска -------------
+app.post('/tasks', (req, res) => {
+    addTask(req.body.id, req.body.task).then(_ => {
+        res.sendStatus(200);
+    }).catch(_ => res.sendStatus(500));
+});
+
+/* app.delete('/user', (req, res) => {
+    deleteUser(req.body.id).then(_ => res.sendStatus(200)).catch(_ => sendStatus(500));
+}); */
+
+/* function getUser(id) {
     return new Promise((resolve, reject) => {
         const user = users.find(u => +u.id === +id);
             if (user) {
@@ -61,9 +73,9 @@ function getUser(id) {
             }            
             reject();
     }).catch(_ => reject());
-}
+} */
 
-function addUser(name) {
+/* function addUser(name) {
     return new Promise((resolve, reject) => {
 
             var maxId = 0;
@@ -76,7 +88,7 @@ function addUser(name) {
                 id: maxId + 1,
                 name: name
             });
-            saveChanges().then(_ => resolve()).catch(_ => reject());
+            saveUserChanges().then(_ => resolve()).catch(_ => reject());
         }); 
 }
 
@@ -86,24 +98,93 @@ function deleteUser(id) {
             if (res) {
                 const index = users.indexOf(res);
                 users.splice(index, 1);
-                saveChanges().then(_ => resolve()).catch(_ => reject());
+                saveUserChanges().then(_ => resolve()).catch(_ => reject());
             } else {
                 reject();
             }
         }).catch(_ => reject());
     });
+} */
+
+function getUsers() {
+    return new Promise((resolve, reject) => {
+        fs.readFile('data/users.json', 'utf-8', (err, data) => {
+            if (err) {
+                reject(err);
+            }
+            resolve(data);
+        });
+    });
+}
+function connectionControl(id) {
+    return new Promise((resolve, reject) => {
+        fs.readFile('data/invites.json', 'utf-8', (err, data) => {
+            if (err) {
+                reject();
+            }
+            const invites = JSON.parse(data);
+            const invite = invites.filter(i => +i.id_receiver === +id);
+            if (invite) {
+                resolve(invite);
+            }
+            resolve([]);
+        })
+    });
 }
 
-function saveChanges() {
+function loadTasks(id) {
+    return new Promise((resolve, reject) => {
+        fs.readFile('data/tasks.json', 'utf-8', (err, data) => {
+            if (err) {
+                reject();
+            } else {
+                const allTasks = JSON.parse(data);
+                const tasks = allTasks.find(t => +t.user_id === +id);
+                if (tasks) {
+                    resolve(tasks.items);
+                }
+                resolve([]);
+            }
+        });
+    });
+}
+
+function addTask(id, task) {
+    return new Promise((resolve, reject) => {
+        fs.readFile('data/tasks.json', 'utf-8', (err, data) => {
+            if (err) {
+                reject();
+            } else {
+                const allTasks = JSON.parse(data);
+                const tasks = allTasks.find(t => +t.id === +id);
+                if (tasks) {
+                    tasks.items.push(task);
+                } else {
+                    allTasks.push({
+                        id,
+                        items: [task]
+                    });
+                }
+                fs.writeFile('data/tasks.json', allTasks, (err) => {
+                    resolve();
+                });
+            }
+        });
+    });
+}
+
+/* function saveUserChanges() {
     return new Promise((res, rej) => {
-        fs.writeFile('users.json', JSON.stringify(users), (err) => {
+        fs.writeFile('data/users.json', JSON.stringify(users), (err) => {
             if (err) {
                 rej();
             }
             res();
         });
     });
-}
+} */
+
+
 
 //heroku
 
