@@ -56,8 +56,10 @@ app.get('/tasks', (req, res) => {
 
 // -------- Добавление таска -------------
 app.post('/tasks', (req, res) => {
-    addTask(req.query.token, req.body.task).then(_ => {
-        res.sendStatus(200);
+    const token = req.query.token;
+    const task = req.body;
+    addTask(token, task).then(_ => {
+        res.send(task.toString());
     }).catch(_ => res.sendStatus(500));
 });
 
@@ -139,7 +141,7 @@ function loadTasks(id) {
                 reject();
             } else {
                 const allTasks = JSON.parse(data);
-                const tasks = allTasks.find(t => +t.user_id === +id);
+                const tasks = allTasks.find(t => +t.id === +id);
                 if (tasks) {
                     resolve(tasks.items);
                 }
@@ -165,9 +167,13 @@ function addTask(id, task) {
                         items: [task]
                     });
                 }
-                fs.writeFile('data/tasks.json', allTasks, (err) => {
+                fs.writeFile('data/tasks.json', JSON.stringify(allTasks), (err) => {
+                    if (err) {
+                        reject();
+                    }
                     resolve();
                 });
+                resolve();
             }
         });
     });
