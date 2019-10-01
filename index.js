@@ -45,7 +45,7 @@ app.post('/tasks', (req, res) => {
         if (err) {
             return res.sendStatus(500);
         }
-        res.sendStatus(200);
+        res.send(JSON.stringify(task));
     })
 });
 
