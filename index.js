@@ -24,204 +24,29 @@ app.use(function(req, res, next) {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-var users = [];
 
-/* app.get('/user/:id', (req, res) => {
-    const id = req.params.id;
-    getUser(id).then(data => {
-        res.send(data);
-    }).catch(_ => {
-        res.sendStatus(500);
-    });
-}); */
+// ------
 
-/* app.post('/users', (req, res) => {
-    addUser(req.body.name).then(_ => res.sendStatus(200)).catch(_ => sendStatus(500));
-}); */
+app.get('/tasks', (req, res) => {
+    const userId = req.query.token;
 
-app.get('/artists', (req, res) => {
-    db.collection('artists').find().toArray((err, docs) => {
+});
+
+app.post('/auth', (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    db.collection('users').findOne({email, password}, (err, result) => {
         if (err) {
             return res.sendStatus(500);
         }
-        res.send(docs);
+        res.send(result._id);
     });
 });
 
+// ------
 
-// ------------- Авторизация----------------
-app.post('/auth', (req, res) => {
-    const user = users.find(u => u.email === req.body.email);
-    if (user && req.body.password === user.password) {
-        res.send(user.id.toString());
-    } else {
-        res.sendStatus(500);
-    }
-});
-
-// ----------- Проверка связи и инвайтов ------------
-app.get('/connection/:id', (req, res) => {
-    connectionControl(req.params.id).then(response => {
-        res.send(response);
-    }).catch(_ => res.sendStatus(500));
-});
-
-// ---------- Получение списка индивидуальных тасков ------
-app.get('/tasks', (req, res) => {
-    loadTasks(req.query.token).then(result => {
-        res.send(result);
-    }).catch(_ => res.sendStatus(500));
-});
-
-// -------- Добавление таска -------------
-app.post('/tasks', (req, res) => {
-    const token = req.query.token;
-    const task = req.body;
-    addTask(token, task).then(_ => {
-        res.send(task.toString());
-    }).catch(_ => res.sendStatus(500));
-});
-
-/* app.delete('/user', (req, res) => {
-    deleteUser(req.body.id).then(_ => res.sendStatus(200)).catch(_ => sendStatus(500));
-}); */
-
-/* function getUser(id) {
-    return new Promise((resolve, reject) => {
-        const user = users.find(u => +u.id === +id);
-            if (user) {
-                resolve(user);
-            }            
-            reject();
-    }).catch(_ => reject());
-} */
-
-/* function addUser(name) {
-    return new Promise((resolve, reject) => {
-
-            var maxId = 0;
-            users.forEach(user => {
-                if (+user.id > maxId) {
-                    maxId = +user.id;
-                }
-            });
-            users.push({
-                id: maxId + 1,
-                name: name
-            });
-            saveUserChanges().then(_ => resolve()).catch(_ => reject());
-        }); 
-}
-
-function deleteUser(id) {
-    return new Promise((resolve, reject) => {
-        getUser(id).then(res => {
-            if (res) {
-                const index = users.indexOf(res);
-                users.splice(index, 1);
-                saveUserChanges().then(_ => resolve()).catch(_ => reject());
-            } else {
-                reject();
-            }
-        }).catch(_ => reject());
-    });
-} */
-
-function getUsers() {
-    return new Promise((resolve, reject) => {
-        fs.readFile('data/users.json', 'utf-8', (err, data) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(data);
-        });
-    });
-}
-function connectionControl(id) {
-    return new Promise((resolve, reject) => {
-        fs.readFile('data/invites.json', 'utf-8', (err, data) => {
-            if (err) {
-                reject();
-            }
-            const invites = JSON.parse(data);
-            const invite = invites.filter(i => +i.id_receiver === +id);
-            if (invite) {
-                resolve(invite);
-            }
-            resolve([]);
-        })
-    });
-}
-
-function loadTasks(id) {
-    return new Promise((resolve, reject) => {
-        fs.readFile('data/tasks.json', 'utf-8', (err, data) => {
-            if (err) {
-                reject();
-            } else {
-                const allTasks = JSON.parse(data);
-                const tasks = allTasks.find(t => +t.id === +id);
-                if (tasks) {
-                    resolve(tasks.items);
-                }
-                resolve([]);
-            }
-        });
-    });
-}
-
-function addTask(id, task) {
-    return new Promise((resolve, reject) => {
-        fs.readFile('data/tasks.json', 'utf-8', (err, data) => {
-            if (err) {
-                reject();
-            } else {
-                const allTasks = JSON.parse(data);
-                const tasks = allTasks.find(t => +t.id === +id);
-                if (tasks) {
-                    tasks.items.push(task);
-                } else {
-                    allTasks.push({
-                        id,
-                        items: [task]
-                    });
-                }
-                fs.writeFile('data/tasks.json', JSON.stringify(allTasks), (err) => {
-                    if (err) {
-                        reject();
-                    }
-                    resolve();
-                });
-                resolve();
-            }
-        });
-    });
-}
-
-/* function saveUserChanges() {
-    return new Promise((res, rej) => {
-        fs.writeFile('data/users.json', JSON.stringify(users), (err) => {
-            if (err) {
-                rej();
-            }
-            res();
-        });
-    });
-} */
-
-
-
-//heroku
 
 const port = process.env.PORT || 3000;
-
-// getUsers().then(data => {
-//     users = JSON.parse(data);
-//     app.listen(port);
-//     console.log('API app started! Port: ', port);
-// }).catch(_ => {
-//     console.log('No Database');
-// });
 
 MongoClient.connect('mongodb+srv://dmi3z:xbvbb7c9@cluster0-unbvo.mongodb.net/test?retryWrites=true&w=majority', (err, database) => {
     if (err) {
