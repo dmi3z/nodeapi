@@ -49,6 +49,17 @@ app.post('/tasks', (req, res) => {
     })
 });
 
+app.delete('/tasks', (req, res) => {
+    const taskId = req.query.id;
+    const userId = req.query.token;
+    db.collection('tasks').remove({_id: taskId, userId}, (err, result) => {
+        if (err) {
+            return res.sendStatus(500);
+        }
+        res.send(result);
+    });
+});
+
 app.post('/auth', (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
