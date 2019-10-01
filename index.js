@@ -223,7 +223,7 @@ const port = process.env.PORT || 3000;
 //     console.log('No Database');
 // });
 
-MongoClient.connect('mongodb://dmi3z.herokuapp.com/tasklist', (err, database) => {
+MongoClient.connect('mongodb://dmi3z.herokuapp.com', (err, database) => {
     if (err) {
         return console.log(err);
     }
