@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var MongoClient = require('mongodb').MongoClient;
+var ObjectID = require('mongodb').ObjectID;
 
 // var WebSocket = require('ws');
 
@@ -52,10 +53,7 @@ app.post('/tasks', (req, res) => {
 app.delete('/tasks', (req, res) => {
     const taskId = req.query.id;
     const userId = req.query.token;
-    db.collection('tasks').deleteOne({_id: taskId, userId }, (err, result) => {
-        if (err) {
-            return res.sendStatus(500);
-        }
+    db.collection('tasks').deleteOne({_id: ObjectID(taskId), userId}, (err, result) => {
         res.send(result);
     });
 });
