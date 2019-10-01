@@ -29,7 +29,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/tasks', (req, res) => {
     const userId = req.query.token;
-    db.collection('tasks').find({ user_id: userId }).toArray((err, data) => {
+    db.collection('tasks').find({ userId }).toArray((err, data) => {
         if (err) {
             return res.sendStatus(500);
         }
