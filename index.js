@@ -223,7 +223,7 @@ const port = process.env.PORT || 3000;
 //     console.log('No Database');
 // });
 
-MongoClient.connect('mongodb://dmi3z.herokuapp.com', (err, database) => {
+MongoClient.connect('mongodb+srv://dmi3z:xbvbb7c9@cluster0-unbvo.mongodb.net/test?retryWrites=true&w=majority', (err, database) => {
     if (err) {
         return console.log(err);
     }
