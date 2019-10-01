@@ -1,8 +1,18 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var fs = require('fs');
+var MongoClient = require('mongodb').MongoClient;
+
+// var WebSocket = require('ws');
+
+// const socketServer = new WebSocket.Server({ port: 3050 });
+
+// socketServer.on('connection', ws => {
+//     ws.send('Welcome to Dmi3z websocket');
+// });
 
 var app = express();
+var db;
 
 
 app.use(function(req, res, next) {
@@ -28,6 +38,15 @@ var users = [];
 /* app.post('/users', (req, res) => {
     addUser(req.body.name).then(_ => res.sendStatus(200)).catch(_ => sendStatus(500));
 }); */
+
+app.get('/artists', (req, res) => {
+    db.collection('artists').find().toArray((err, docs) => {
+        if (err) {
+            return res.sendStatus(500);
+        }
+        res.send(docs);
+    });
+});
 
 
 // ------------- Авторизация----------------
@@ -196,11 +215,19 @@ function addTask(id, task) {
 
 const port = process.env.PORT || 3000;
 
-getUsers().then(data => {
-    users = JSON.parse(data);
+// getUsers().then(data => {
+//     users = JSON.parse(data);
+//     app.listen(port);
+//     console.log('API app started! Port: ', port);
+// }).catch(_ => {
+//     console.log('No Database');
+// });
+
+MongoClient.connect('mongodb://dmi3z.herokuapp.com/tasklist', (err, database) => {
+    if (err) {
+        return console.log(err);
+    }
+    db = database.db('tasklist');
     app.listen(port);
     console.log('API app started! Port: ', port);
-}).catch(_ => {
-    console.log('No Database');
-});
-
+})
