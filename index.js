@@ -39,7 +39,12 @@ app.post('/auth', (req, res) => {
         if (err) {
             return res.sendStatus(500);
         }
-        res.send(result._id);
+        if (result) {
+            res.send(result._id);
+        } else {
+            res.sendStatus(404);
+        }
+        
     });
 });
 
