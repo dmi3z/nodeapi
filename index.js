@@ -41,11 +41,11 @@ app.post('/tasks', (req, res) => {
     const task = req.body;
     const userId = req.query.token;
     task.userId = userId;
-    db.collection('tasks').insertOne(task, (err, result) => {
+    db.collection('tasks').insertOne(task, (err) => {
         if (err) {
             return res.sendStatus(500);
         }
-        res.send('Success');
+        res.sendStatus(200);
     })
 });
 
