@@ -29,7 +29,24 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/tasks', (req, res) => {
     const userId = req.query.token;
+    db.collection('tasks').find({ user_id: userId }).toArray((err, data) => {
+        if (err) {
+            return res.sendStatus(500);
+        }
+        res.send(data);
+    });
+});
 
+app.post('/tasks', (req, res) => {
+    const task = req.body;
+    const userId = req.query.token;
+    task.userId = userId;
+    db.collection('tasks').insertOne(task, (err, result) => {
+        if (err) {
+            return res.sendStatus(500);
+        }
+        res.send('Success');
+    })
 });
 
 app.post('/auth', (req, res) => {
@@ -44,7 +61,6 @@ app.post('/auth', (req, res) => {
         } else {
             res.sendStatus(404);
         }
-        
     });
 });
 
