@@ -30,7 +30,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/tasks', (req, res) => {
     const userId = req.query.token;
-    db.collection('tasks').find({ userId }).toArray((err, data) => {
+    db.collection(userId.toString()).find({ userId }).toArray((err, data) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -42,7 +42,7 @@ app.post('/tasks', (req, res) => {
     const task = req.body;
     const userId = req.query.token;
     task.userId = userId;
-    db.collection('tasks').insertOne(task, (err) => {
+    db.collection(userId.toString()).insertOne(task, (err) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -53,7 +53,7 @@ app.post('/tasks', (req, res) => {
 app.delete('/tasks', (req, res) => {
     const taskId = req.query.id;
     const userId = req.query.token;
-    db.collection('tasks').deleteOne({_id: ObjectID(taskId), userId}, (err, result) => {
+    db.collection(userId.toString()).deleteOne({_id: ObjectID(taskId), userId}, (err, result) => {
         res.send(result);
     });
 });
